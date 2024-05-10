@@ -70,5 +70,4 @@ test_that("fetch_data() function test", {
   )
   # 比較兩個data table 是否一致
   expect_equal(filtered_data, answer)
-  
 })
