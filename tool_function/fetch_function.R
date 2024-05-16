@@ -1,24 +1,15 @@
-library(reshape2)
 library(assertthat)
 library(data.table)
 
-#=======================================
-# fetch function sets
-# function1: fetch_data()
-# function2: get_valid_data()
-
-#===============================================================================
-# function_name: fetch_data
-# parameters:
-#   - data(data_table): 包含需要處理的資料
-#   - target_ID(vector): 要標準化的目標 ID 列表 
-#   - disease_ID(vector): 疾病 ID 所在的欄位 (疾病col1, 疾病col2, 疾病col2)
-#   - disease_codes(vector): 要配對的疾病碼 
-# return:
-#   - data_table
-
 fetch_data <- function(dt, target_ID_cols, disease_ID_cols, disease_codes){
-  
+  # parameters:
+  #   - data(data_table): 包含需要處理的資料
+  #   - target_ID(vector): 要標準化的目標 ID 列表 
+  #   - disease_ID(vector): 疾病 ID 所在的欄位 (疾病col1, 疾病col2, 疾病col2)
+  #   - disease_codes(vector): 要配對的疾病碼 
+  # return:
+  #   - data_table
+    
   # Data type restrictions
   assert_that(is.data.table(dt), msg="Error: 'df' must be a data.table")
   assert_that(is.vector(target_ID_cols), 
@@ -32,29 +23,26 @@ fetch_data <- function(dt, target_ID_cols, disease_ID_cols, disease_codes){
   melted_data <- melt(dt, id.var=target_ID_cols)
   melted_data <- as.data.table(melted_data)
   
-  # Step2: Match disease codes: more
+  # Step2: Match disease codes
   melted_data[, value := as.character(value)]
   filtered_data <- melted_data[grepl(paste0("^", paste(disease_codes, collapse="|^")), 
                                      value)]
-  filtered_data <- filtered_data[,.(get(target_ID_cols[1]),get(target_ID_cols[2]))]
   
-  setnames(filtered_data, target_ID_cols)
+  filtered_data <- filtered_data[, c(target_ID_cols[1], target_ID_cols[2]),
+                                 with = FALSE]
   
   return(filtered_data)
 }
 
-#===============================================================================
-# function_name: get_valid_data
-# parameters:
-#   - dt(data_table): 門診資料
-#   - group_id_col: 病人ID欄位
-#   - date_col: 日期欄位
-#   - k(numeric): 一年內看診次數
-# return:
-#   - data_table 一年內超過k筆數據的資料
-
 get_valid_data <- function(dt, group_id_col, date_col, k){
-  
+  # parameters:
+  #   - dt(data_table): 門診資料
+  #   - group_id_col: 病人ID欄位
+  #   - date_col: 日期欄位
+  #   - k(numeric): 一年內看診次數
+  # return:
+  #   - data_table 一年內超過k筆數據的資料
+    
   # Data type restrictions
   assert_that(is.data.table(dt), msg="Error: 'dt' must be a data.table")
   assert_that(is.character(group_id_col), 
@@ -83,16 +71,13 @@ get_valid_data <- function(dt, group_id_col, date_col, k){
   return(dt)
 }
 
-#===============================================================================
-# function name: Find_earliest_date
-# parameters:
-#   - P: 參數JSON包括包括: {"dt1": {"df": "dt_c","idcol": "CHR_NO",
-#                       "datecol": "OPD_DATE","k": 3},"dt2":.....}
-# return:
-#   - data_table 各確診病人的第一次確診時間(ID, DATE)
+find_earliest_date <- function(P) {
+  # parameters:
+  #   - P: 參數JSON包括包括: {"dt1": {"df": "dt_c","idcol": "CHR_NO",
+  #                       "datecol": "OPD_DATE","k": 3},"dt2":.....}
+  # return:
+  #   - data_table 各確診病人的第一次確診時間(ID, DATE)
 
-Find_earliest_date <- function(P) {
-  
   combined_data <- data.table()
   for (dt in P) {
     df <- get(dt$df)
