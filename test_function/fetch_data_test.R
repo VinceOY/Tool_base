@@ -5,9 +5,10 @@ library(testthat)
 
 #===============================================================================
 # fetch_data: unit_test
+
 test_that("fetch_data() function test", {
   
-  # Create test data 
+  # create test data 
   dt <- data.table(
     CHR_NO = c("ID1", "ID2", "ID3"),
     OPD_DATE = c("2024-01-01", "2024-01-02", "2024-01-03"),
@@ -15,12 +16,12 @@ test_that("fetch_data() function test", {
     ICD9_CODE2 = c("585", "586", "587")
   )
   
-  # Define target_ID_cols, disease_ID_cols, disease_codes
+  # define target_ID_cols, disease_ID_cols, disease_codes
   target_ID_cols <- c("CHR_NO", "OPD_DATE")
   disease_ID_cols <- c("ICD9_CODE1", "ICD9_CODE2")
   disease_codes <- c("434.01", "585")
   
-  # Test fetch_data() 
+  # test fetch_data() 
   filtered_data <- fetch_data(dt, target_ID_cols, disease_ID_cols, disease_codes)
   
   answer <- data.table(
@@ -28,7 +29,7 @@ test_that("fetch_data() function test", {
     OPD_DATE = c("2024-01-02", "2024-01-01")
   )
   
-  # Compare result
+  # compare result
   expect_equal(filtered_data, answer)
   
 })
@@ -37,6 +38,7 @@ test_that("fetch_data() function test", {
 # get_valid_data: unit_test
 # test_item: 
 # 1.duplicate date，2.diff group id col，3.different k = 2,3
+
 test_that("get_valid_data() function test", {
   
   # example1
@@ -77,10 +79,10 @@ test_that("get_valid_data() function test", {
 })
 
 #===============================================================================
-# Find_earliest_date: unit_test
+# find_earliest_date: unit_test
 
 test_that("Find_earliest_date() function test", {
-  # Create data and answer
+  # create data and answer
   dt_c <- data.table(CHR_NO = c(1, 1, 2, 2), 
                      OPD_DATE = as.Date(c("2024-01-01", "2024-02-01", 
                                           "2024-01-15", "2024-02-15")))
@@ -91,25 +93,13 @@ test_that("Find_earliest_date() function test", {
                                 Date = as.Date(c("2024-01-01", "2024-01-15", 
                                                  "2024-04-01", "2024-03-15")))
   # set parameters
-  json_params <- '
-  {
-    "dt1": {
-      "df": "dt_c",
-      "idcol": "CHR_NO",
-      "datecol": "OPD_DATE",
-      "k": 2
-    },
-    "dt2": {
-      "df": "dt_hos",
-      "idcol": "CHR_NO",
-      "datecol": "IPD_DATE",
-      "k": 1
-    }
-  }'
-  P <- fromJSON(json_params)
+  P_list <- list(
+    list(df = "dt_c", idcol = "CHR_NO", datecol = "OPD_DATE", k = 2),
+    list(df = "dt_hos", idcol = "CHR_NO", datecol = "IPD_DATE", k = 1)
+  )
   
   # function result 
-  actual_result <- Find_earliest_date(P)
+  actual_result <- find_earliest_date(P_list)
   
   # test
   expect_equivalent(actual_result, expected_result)

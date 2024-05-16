@@ -4,13 +4,13 @@ library(data.table)
 fetch_data <- function(dt, target_ID_cols, disease_ID_cols, disease_codes){
   # parameters:
   #   - data(data_table): 包含需要處理的資料
-  #   - target_ID(vector): 要標準化的目標 ID 列表 
-  #   - disease_ID(vector): 疾病 ID 所在的欄位 (疾病col1, 疾病col2, 疾病col2)
+  #   - target_ID_cols(vector): 要標準化的目標 ID 列表(ID, DATE) 
+  #   - disease_ID_cols(vector): 疾病 ID 所在的欄位 (疾病col1, 疾病col2,...)
   #   - disease_codes(vector): 要配對的疾病碼 
   # return:
   #   - data_table
     
-  # Data type restrictions
+  # data type restrictions
   assert_that(is.data.table(dt), msg="Error: 'df' must be a data.table")
   assert_that(is.vector(target_ID_cols), 
               msg="Error: 'target_ID_cols' must be a list.")
@@ -19,11 +19,11 @@ fetch_data <- function(dt, target_ID_cols, disease_ID_cols, disease_codes){
   
   dt <- dt[, c(target_ID_cols,disease_ID_cols),with = FALSE]
   
-  # Step1: Melt disease_ID #?disease_ID_cols to chr?
+  # step1: Melt disease_ID 
   melted_data <- melt(dt, id.var=target_ID_cols)
   melted_data <- as.data.table(melted_data)
   
-  # Step2: Match disease codes
+  # step2: Match disease codes
   melted_data[, value := as.character(value)]
   filtered_data <- melted_data[grepl(paste0("^", paste(disease_codes, collapse="|^")), 
                                      value)]
@@ -43,7 +43,7 @@ get_valid_data <- function(dt, group_id_col, date_col, k){
   # return:
   #   - data_table 一年內超過k筆數據的資料
     
-  # Data type restrictions
+  # data type restrictions
   assert_that(is.data.table(dt), msg="Error: 'dt' must be a data.table")
   assert_that(is.character(group_id_col), 
               msg="Error: 'group_id_col' must be a character")
@@ -51,19 +51,19 @@ get_valid_data <- function(dt, group_id_col, date_col, k){
               msg="Error: 'date_col' must be a character")
   assert_that(is.numeric(k), msg="Error: 'k' must be a numeric.")
   
-  # Rename data col
+  # rename data col
   dt <- dt[, .(ID = get(group_id_col), 
                DATE = get(date_col))]
-  # Drop Duplicate
+  # drop duplicate
   dt <- dt[!duplicated(dt)]
   
-  # Sort values by (ID, DATE)
+  # sort values by (ID, DATE)
   dt <- dt[order(ID, DATE)]
   
   # create shift col
   dt[, k_times_data := shift(DATE, n = -(k-1)), by = ID]
   
-  # Clean data
+  # clean data
   dt[, diff := k_times_data - DATE]
   dt <- dt[diff <= 365]
   dt <- dt[, .(ID, DATE)]
@@ -71,21 +71,22 @@ get_valid_data <- function(dt, group_id_col, date_col, k){
   return(dt)
 }
 
-find_earliest_date <- function(P) {
+find_earliest_date <- function(P_list) {
   # parameters:
-  #   - P: 參數JSON包括包括: {"dt1": {"df": "dt_c","idcol": "CHR_NO",
-  #                       "datecol": "OPD_DATE","k": 3},"dt2":.....}
+  #   - P: 參數list包括: example
+  #       list(list(df1 = "dt_c", idcol = "CHR_NO", datecol = "OPD_DATE", k = 2),
+  #       list(dt2....)
   # return:
   #   - data_table 各確診病人的第一次確診時間(ID, DATE)
 
   combined_data <- data.table()
-  for (dt in P) {
-    df <- get(dt$df)
-    valid_data <- get_valid_data(df, dt$idcol, dt$datecol, dt$k)
+  for (P in P_list) {
+    df <- get(P$df)
+    valid_data <- get_valid_data(df, P$idcol, P$datecol, P$k)
     combined_data <- rbind(combined_data, valid_data)
   }
-  
-  # Find earliest date for each ID
+ 
+  # find earliest date for each ID
   combined_data <- combined_data[, .(Date = min(DATE)), by = ID]
   
   return(combined_data)
