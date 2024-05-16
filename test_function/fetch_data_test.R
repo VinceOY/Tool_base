@@ -81,15 +81,15 @@ test_that("get_valid_data() function test", {
 
 test_that("Find_earliest_date() function test", {
   # Create data and answer
-  dt_c <- data.table(CHR_NO = c(1, 1, 2, 3), 
+  dt_c <- data.table(CHR_NO = c(1, 1, 2, 2), 
                      OPD_DATE = as.Date(c("2024-01-01", "2024-02-01", 
                                           "2024-01-15", "2024-02-15")))
   dt_hos <- data.table(CHR_NO = c(2, 3, 4), 
                        IPD_DATE = as.Date(c("2024-03-01", "2024-04-01", 
                                             "2024-03-15")))
-  expected_result <- data.table(ID = c(2, 3, 4), 
-                                Date = as.Date(c("2024-03-01", "2024-04-01", 
-                                                 "2024-03-15")))
+  expected_result <- data.table(ID = c(1, 2, 3, 4), 
+                                Date = as.Date(c("2024-01-01", "2024-01-15", 
+                                                 "2024-04-01", "2024-03-15")))
   # set parameters
   json_params <- '
   {
@@ -97,7 +97,7 @@ test_that("Find_earliest_date() function test", {
       "df": "dt_c",
       "idcol": "CHR_NO",
       "datecol": "OPD_DATE",
-      "k": 3
+      "k": 2
     },
     "dt2": {
       "df": "dt_hos",
