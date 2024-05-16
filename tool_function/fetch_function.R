@@ -28,7 +28,7 @@ fetch_data <- function(dt, target_ID_cols, disease_ID_cols, disease_codes){
   
   dt <- dt[, c(target_ID_cols,disease_ID_cols),with = FALSE]
   
-  # Step1: Melt disease_ID
+  # Step1: Melt disease_ID #?disease_ID_cols to chr?
   melted_data <- melt(dt, id.var=target_ID_cols)
   melted_data <- as.data.table(melted_data)
   
@@ -81,4 +81,27 @@ get_valid_data <- function(dt, group_id_col, date_col, k){
   dt <- dt[, .(ID, DATE)]
   
   return(dt)
+}
+
+#===============================================================================
+# function name: Find_earliest_date
+# parameters:
+#   - P: 參數JSON包括包括: {"dt1": {"df": "dt_c","idcol": "CHR_NO",
+#                       "datecol": "OPD_DATE","k": 3},"dt2":.....}
+# return:
+#   - data_table 各確診病人的第一次確診時間(ID, DATE)
+
+Find_earliest_date <- function(P) {
+  
+  combined_data <- data.table()
+  for (dt in P) {
+    df <- get(dt$df)
+    valid_data <- get_valid_data(df, dt$idcol, dt$datecol, dt$k)
+    combined_data <- rbind(combined_data, valid_data)
+  }
+  
+  # Find earliest date for each ID
+  combined_data <- combined_data[, .(Date = min(DATE)), by = ID]
+  
+  return(combined_data)
 }
