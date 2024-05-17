@@ -22,5 +22,5 @@ ToolBase/
 |   |── fetch_data_test.R
 |   └── documentation.md
 ├── example.R
-└── READ.md
+└── README.md
 ```
