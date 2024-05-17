@@ -42,7 +42,6 @@ parameters <- list(
   )
 )
 
-
 #===============================================================================
 # preprocess flow
 P_list = list()
@@ -78,5 +77,7 @@ for (data_set_name in names(parameters$data_sets)) {
 
 # step3: combine and find earliest data set
 clean_dt <- find_earliest_date(P_list)
+
+# check ID unique
 dim(clean_dt)
 length(unique(clean_dt$ID))
