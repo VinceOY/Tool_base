@@ -14,11 +14,13 @@ ToolBase/
 |
 ├── tool_function/
 |   |── standard_function.R  
-|   └── fetch_function.R
+|   |── fetch_function.R
+|   └── documentation.md
 |
 ├── test_function/
 |   |── standard_function_test.R  
-|   └── fetch_data_test.R
+|   |── fetch_data_test.R
+|   └── documentation.md
 ├── example.R
 └── READ.md
 ```
