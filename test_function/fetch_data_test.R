@@ -22,7 +22,8 @@ test_that("fetch_data() function test", {
   disease_codes <- c("434.01", "585")
   
   # test fetch_data() 
-  filtered_data <- fetch_data(dt, target_ID_cols, disease_ID_cols, disease_codes)
+  filtered_data <- fetch_data(dt, target_ID_cols, disease_ID_cols, 
+                              disease_codes)
   
   answer <- data.table(
     CHR_NO = c("ID2", "ID1"),
@@ -83,7 +84,7 @@ test_that("get_valid_data() function test", {
 
 test_that("Find_earliest_date() function test", {
   # create data and answer
-  dt_c <- data.table(CHR_NO = c(1, 1, 2, 2), 
+  dt_c <- data.table(ID = c(1, 1, 2, 2), 
                      OPD_DATE = as.Date(c("2024-01-01", "2024-02-01", 
                                           "2024-01-15", "2024-02-15")))
   dt_hos <- data.table(CHR_NO = c(2, 3, 4), 
@@ -94,7 +95,7 @@ test_that("Find_earliest_date() function test", {
                                                  "2024-04-01", "2024-03-15")))
   # set parameters
   P_list <- list(
-    list(df = dt_c, idcol = "CHR_NO", datecol = "OPD_DATE", k = 2),
+    list(df = dt_c, idcol = "ID", datecol = "OPD_DATE", k = 2),
     list(df = dt_hos, idcol = "CHR_NO", datecol = "IPD_DATE", k = 1)
   )
   
