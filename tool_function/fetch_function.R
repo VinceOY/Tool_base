@@ -17,16 +17,21 @@ fetch_data <- function(dt, target_ID_cols, disease_ID_cols, disease_codes){
   assert_that(is.character(disease_codes), 
               msg="Error: 'search_ID' must be a character vector.")
   
+  # select columns
   dt <- dt[, c(target_ID_cols,disease_ID_cols),with = FALSE]
   
-  # step1: Melt disease_ID 
+  # transfer disease_ID_cols type to str
+  dt <- dt[, (disease_ID_cols) := lapply(.SD, as.character), 
+           .SDcols = disease_ID_cols]
+  
+  # step1: melt disease_ID 
   melted_data <- melt(dt, id.var=target_ID_cols)
   melted_data <- as.data.table(melted_data)
   
-  # step2: Match disease codes
+  # step2: match disease codes
   melted_data[, value := as.character(value)]
-  filtered_data <- melted_data[grepl(paste0("^", paste(disease_codes, collapse="|^")), 
-                                     value)]
+  filtered_data <- melted_data[grepl(paste0("^", paste(disease_codes, 
+                                                       collapse="|^")), value)]
   
   filtered_data <- filtered_data[, c(target_ID_cols[1], target_ID_cols[2]),
                                  with = FALSE]
@@ -74,15 +79,14 @@ get_valid_data <- function(dt, group_id_col, date_col, k){
 find_earliest_date <- function(P_list) {
   # parameters:
   #   - P: 參數list包括: example
-  #       list(list(df1 = "dt_c", idcol = "CHR_NO", datecol = "OPD_DATE", k = 2),
+  #       list(list(df1 = dt_c, idcol = "CHR_NO", datecol = "OPD_DATE", k = 2),
   #       list(dt2....)
   # return:
   #   - data_table 各確診病人的第一次確診時間(ID, DATE)
 
   combined_data <- data.table()
   for (P in P_list) {
-    df <- get(P$df)
-    valid_data <- get_valid_data(df, P$idcol, P$datecol, P$k)
+    valid_data <- get_valid_data(P$df, P$idcol, P$datecol, P$k)
     combined_data <- rbind(combined_data, valid_data)
   }
  
@@ -91,3 +95,4 @@ find_earliest_date <- function(P_list) {
   
   return(combined_data)
 }
+

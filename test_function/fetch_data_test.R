@@ -94,8 +94,8 @@ test_that("Find_earliest_date() function test", {
                                                  "2024-04-01", "2024-03-15")))
   # set parameters
   P_list <- list(
-    list(df = "dt_c", idcol = "CHR_NO", datecol = "OPD_DATE", k = 2),
-    list(df = "dt_hos", idcol = "CHR_NO", datecol = "IPD_DATE", k = 1)
+    list(df = dt_c, idcol = "CHR_NO", datecol = "OPD_DATE", k = 2),
+    list(df = dt_hos, idcol = "CHR_NO", datecol = "IPD_DATE", k = 1)
   )
   
   # function result 
