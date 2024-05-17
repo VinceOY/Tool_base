@@ -8,39 +8,35 @@ source("tool_function/standard_function.R")
 parameters <- list(
   # files
   folder_path = "C:/Users/USER/Downloads/hospital/TMUCRD_2021_csv_new/",
-  disease_codes = list("E08","E09","E10","E11","E12"),
+  disease_codes = c("E08","E09","E10","E11","E12"),
   # data sets parameters
   data_sets = list(
-    list(
+    dt1 = list(
       # dt1 parameters
-      file_list = list("v_opd_basic_w.csv","v_opd_basic_t.csv",
-                       "v_opd_basic_s.csv"),
-      target_ID_cols = list("CHR_NO", "OPD_DATE"),
-      disease_ID_cols = list("ICD9_CODE1", "ICD9_CODE2", "ICD9_CODE3", 
-                             "ICD10_CODE1", "ICD10_CODE2", "ICD10_CODE3", 
-                             "ICD10_CODE4", "ICD10_CODE5", "OPER10_CODE1", 
-                             "OPER10_CODE2", "OPER10_CODE3"),
+      file_list = c("v_opd_basic_w.csv","v_opd_basic_t.csv",
+                    "v_opd_basic_s.csv"),
+      disease_ID_cols = c("ICD9_CODE1", "ICD9_CODE2", "ICD9_CODE3", 
+                          "ICD10_CODE1", "ICD10_CODE2", "ICD10_CODE3", 
+                          "ICD10_CODE4", "ICD10_CODE5", "OPER10_CODE1", 
+                          "OPER10_CODE2", "OPER10_CODE3"),
+      id_col = "CHR_NO",
       date_col = "OPD_DATE",
-      df_name = "dt_c",
-      group_id = "CHR_NO",
       k = 3
     ),
-    list(
+    dt2 = list(
       # dt2 parameters
-      file_list = list("v_ipd_basic_w.csv","v_ipd_basic_t.csv",
-                       "v_ipd_basic_s.csv"),
-      target_ID_cols = list("CHR_NO", "IPD_DATE"),
-      disease_ID_cols = list("OP_CODE1", "OP_CODE2", "OP_CODE3", "OP_CODE4",
-                             "OP_CODE5", "OPER10_CODE1", "OPER10_CODE2", 
-                             "OPER10_CODE3", "OPER10_CODE4", "OPER10_CODE5", 
-                             "EDIAG_CODE", "ESDIAG_CODE1", "ESDIAG_CODE2", 
-                             "ESDIAG_CODE3", "ESDIAG_CODE4", "EDIAG_DESC",
-                             "ICD10_CODE1", "ICD10_CODE2", "ICD10_CODE3", 
-                             "ICD10_CODE4", "ICD10_CODE5", "ICD10_CODE6", 
-                             "ICD10_CODE7"),
+      file_list = c("v_ipd_basic_w.csv","v_ipd_basic_t.csv",
+                    "v_ipd_basic_s.csv"),
+      disease_ID_cols = c("OP_CODE1", "OP_CODE2", "OP_CODE3", "OP_CODE4",
+                          "OP_CODE5", "OPER10_CODE1", "OPER10_CODE2", 
+                          "OPER10_CODE3", "OPER10_CODE4", "OPER10_CODE5", 
+                          "EDIAG_CODE", "ESDIAG_CODE1", "ESDIAG_CODE2", 
+                          "ESDIAG_CODE3", "ESDIAG_CODE4", "EDIAG_DESC",
+                          "ICD10_CODE1", "ICD10_CODE2", "ICD10_CODE3", 
+                          "ICD10_CODE4", "ICD10_CODE5", "ICD10_CODE6", 
+                          "ICD10_CODE7"),
+      id_col = "CHR_NO",
       date_col = "IPD_DATE",
-      df_name = "dt_hos",
-      group_id = "CHR_NO",
       k = 1
     )
   )
@@ -50,18 +46,18 @@ parameters <- list(
 #===============================================================================
 # preprocess flow
 P_list = list()
-folder_path <- unlist(parameters$folder_path) 
-disease_codes <- unlist(parameters$disease_codes) 
+folder_path <- parameters$folder_path
+disease_codes <- parameters$disease_codes
 
-for (data_set in parameters$data_sets) {
-  dt_file_list <- unlist(data_set$file_list) 
-  dt_target_ID_cols <- unlist(data_set$target_ID_cols)
-  dt_disease_ID_cols <- unlist(data_set$disease_ID_cols)
-  dt_date_col <- unlist(data_set$date_col)
-  dt_df_name <- unlist(data_set$df_name)
-  dt_group_id <- unlist(data_set$group_id)
-  dt_valid_times <- unlist(data_set$k)
-  dt_name <- unlist(data_set$df_name)
+for (data_set_name in names(parameters$data_sets)) {
+  dt_name <- data_set_name
+  data_set <- parameters$data_sets[[data_set_name]]
+  dt_file_list <- data_set$file_list
+  dt_id_col <- data_set$id_col
+  dt_date_col <- data_set$date_col
+  dt_target_ID_cols <- c(dt_id_col, dt_date_col)
+  dt_disease_ID_cols <- data_set$disease_ID_cols
+  dt_valid_times <- data_set$k
   
   # step1: fetch data
   assign(dt_name, data.table())
