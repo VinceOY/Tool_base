@@ -11,12 +11,14 @@ The project is currently under development, but you can organize your code accor
 
 ```
 ToolBase/
-│
+|
 ├── tool_function/
 |   |── standard_function.R  
 |   └── fetch_function.R
 |
-└── test_function/
-    |── standard_function_test.R  
-    └── fetch_data_test.R
+├── test_function/
+|   |── standard_function_test.R  
+|   └── fetch_data_test.R
+├── example.R
+└── READ.md
 ```
