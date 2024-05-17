@@ -80,6 +80,7 @@ for (data_set in parameters$data_sets) {
                                      k = dt_valid_times)))
 }
 
-# step3: combine and find earliest dateset
+# step3: combine and find earliest data set
 clean_dt <- find_earliest_date(P_list)
 dim(clean_dt)
+length(unique(clean_dt$ID))
