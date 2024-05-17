@@ -1,6 +1,6 @@
 #===============================================================================
-#=======================================
 # standard function sets
+
 # function1: standardized_date()
 standardized_date <- function(dt, date_col){
   # Transfer date type 
