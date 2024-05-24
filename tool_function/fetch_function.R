@@ -96,3 +96,43 @@ find_earliest_date <- function(P_list) {
   return(combined_data)
 }
 
+fetch_data2 <- function(dt, target_ID_cols, disease_ID_cols, disease_codes){
+  # parameters:
+  #   - data(data_table): 包含需要處理的資料
+  #   - target_ID_cols(vector): 要標準化的目標 ID 列表(ID, DATE) 
+  #   - disease_ID_cols(vector): 疾病 ID 所在的欄位 (疾病col1, 疾病col2,...)
+  #   - disease_codes(list): 要配對的疾病碼 
+  # return:
+  #   - data_table
+  
+  # data type restrictions
+  assert_that(is.data.table(dt), msg="Error: 'df' must be a data.table")
+  assert_that(is.vector(target_ID_cols), 
+              msg="Error: 'target_ID_cols' must be a list.")
+  assert_that(is.list(disease_codes), 
+              msg="Error: 'search_ID' must be a character vector.")
+  
+  # select columns
+  dt <- dt[, c(target_ID_cols,disease_ID_cols),with = FALSE]
+  
+  # transfer disease_ID_cols type to str
+  dt <- dt[, (disease_ID_cols) := lapply(.SD, as.character), 
+           .SDcols = disease_ID_cols]
+  
+  # step1: melt disease_ID 
+  melted_data <- melt(dt, id.var=target_ID_cols)
+  melted_data <- as.data.table(melted_data)
+  melted_data[, value := as.character(value)]
+  
+  # step2: match disease codes
+  dt_list <- list()
+  for (i in names(disease_codes)) {
+    filtered_data <- melted_data[grepl(paste0("^", paste(disease_codes[[i]], 
+                                                         collapse="|^")), value)]
+    filtered_data <- filtered_data[, c(target_ID_cols[1], target_ID_cols[2]),
+                                   with = FALSE]
+    dt_list[[i]] <- filtered_data
+  }
+  
+  return(dt_list)
+}
